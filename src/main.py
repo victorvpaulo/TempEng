@@ -26,7 +26,7 @@ def placeholder_for_execution(template_path, context_path, execute_output_path):
 
 
 parser = argparse.ArgumentParser(
-    description="A simple Template Enginee based on compilation."
+    description="A simple Template Engine based on compilation."
     " Can receive a textual static template file and compile it,"
     " or execute a compiled template along with a data context to generate"
     " files with dynamic data.")
