@@ -140,18 +140,161 @@ class Parser:
         return expressions
 
 
-def write_to_output(output, content):
-    output.write(content)
+class Compiler:
+    FOUR_SPACES = "    "
+    TWO_SPACES = "  "
+    TAB = "\t"
 
+    def __init__(self, string_list_identifier, initial_indent_level,
+                 indentation=FOUR_SPACES):
+        self.string_list_identifier = string_list_identifier
+        self.initial_indent_level = initial_indent_level
+        self.indentation = indentation
+        self.string_variable_counter = 0
+        # TODO:
+        # Context é o nome do dicionário sendo passado com dados
+        # dinâmicos na execução.
+        # portanto, ele tem escopo global (nível -1).
+        # O que eu preciso lembrar é que o dicionário passado não
+        # pode ter nenhuma chave
+        # chamada contexto. Se não é possível confundir os escopos
+        # (ver método compile variable)
+        # isso tem que ocasionar uma checagem de erro no executor,
+        # pra ver se tem alguma variável contexto no dicionário.
+        self.scope_variables = [("context", -1)]
 
-def compilator_placeholder(expressions):
-    for expression in expressions:
-        print(str(expression))
+    def compile_expression(self, expression_type, expression_content,
+                           hierarchical_level):
+        if expression_type == "if":
+            return self.compile_if(expression_content, hierarchical_level)
+        elif expression_type == "for":
+            return self.compile_for(expression_content, hierarchical_level)
+        elif expression_type == "variable":
+            return self.compile_variable(expression_content,
+                                         hierarchical_level)
+        else:
+            return self.compile_static_string(expression_content,
+                                              hierarchical_level)
+
+    def compile_if(self, if_expression, hierarchical_level):
+        comparison_expression = if_expression.replace("if", "").strip()
+        comparison_operator = self.get_comparison_operator(
+            comparison_expression)
+        variables = comparison_expression.split(comparison_operator)
+        for index in range(0, len(variables)):
+            compiled_variable = self.compile_variable(variables[index],
+                                                      hierarchical_level, True)
+            variables[index] = compiled_variable
+        compiled_if_expression = "if " + variables[0] + " " \
+                                 + comparison_operator + " " + variables[1]
+
+        compiled_if_expression = self.indent(compiled_if_expression,
+                                             hierarchical_level)
+        return compiled_if_expression
+
+    def get_comparison_operator(self, if_expression):
+        operators = ("==", "!=", ">", ">=", "<", "<=")
+        for operator in operators:
+            if operator in if_expression:
+                return operator
+        return None
+
+    def compile_for(self, for_expression, hierarchical_level):
+        self.add_variable_to_scope(for_expression, hierarchical_level)
+
+        sequence_variable = self.get_sequence_variable(for_expression)
+        compiled_sequence_variable = self.compile_variable(sequence_variable,
+                                                           hierarchical_level,
+                                                           True)
+        compiled_for_expression = for_expression.replace(
+            sequence_variable, " " + compiled_sequence_variable)
+        compiled_for_expression = self.indent(compiled_for_expression,
+                                              hierarchical_level)
+        return compiled_for_expression
+
+    def get_element_of_sequence(self, for_expression):
+        return for_expression[3:for_expression.index("in")].strip()
+
+    def get_sequence_variable(self, for_expression):
+        return for_expression[for_expression.index("in") + 2:]
+
+    def compile_variable(self, raw_variable, hierarchical_level,
+                         control_expression_variable=False):
+        keys = raw_variable.split(".")
+        scope_variable = self.get_scope_variable(keys[0])
+        compiled_expression = scope_variable
+
+        for index in range(0, len(keys)):
+            key = keys[index].strip()
+            if index == 0 and key == scope_variable:
+                continue
+            compiled_expression += "['" + key + "']"
+        if not control_expression_variable:
+            compiled_expression = self.compile_string(
+                compiled_expression, hierarchical_level)
+
+        return compiled_expression
+
+    def compile_static_string(self, raw_string, hierarchical_level):
+        string = repr(raw_string)
+        return self.compile_string(string, hierarchical_level)
+
+    def compile_string(self, string, hierarchical_level):
+        string_variable_identifier = "str_" + str(self.string_variable_counter)
+        self.string_variable_counter += 1
+        header = string_variable_identifier + " = "
+        header = self.indent(header, hierarchical_level)
+        append_statement = self.get_append_string_to_list_statement(
+            string_variable_identifier, hierarchical_level)
+        compiled_expression = header + string + append_statement
+        return compiled_expression
+
+    def get_append_string_to_list_statement(self, string_variable_identifier,
+                                            hierarchical_level):
+        append_statement = self.string_list_identifier \
+                           + ".append(" + string_variable_identifier + ")"
+        append_statement = self.indent(append_statement, hierarchical_level)
+        return append_statement
+
+    def indent(self, compiled_expression, hierarchical_level):
+        indented_expression = "\n"
+        for level in range(0, hierarchical_level + self.initial_indent_level):
+            indented_expression += self.indentation
+        indented_expression += compiled_expression
+        return indented_expression
+
+    def method_name(self, idented_expression):
+        return idented_expression
+
+    def get_scope_variable(self, variable):
+        for scope_variable in self.scope_variables[::-1]:
+            if scope_variable[0] == variable:
+                return scope_variable[0]
+            return self.scope_variables[0][0]
+
+    def add_variable_to_scope(self, for_expression, hierarchical_level):
+        variable = self.get_element_of_sequence(for_expression)
+        self.scope_variables.append((variable, hierarchical_level))
+
+    def remove_variables_out_of_scope(self, hierarchical_level):
+        for variable in self.scope_variables[::-1]:
+            variable_level = variable[1]
+            if variable_level <= hierarchical_level:
+                self.scope_variables.remove(variable)
+            else:
+                return
 
 
 def compile_template(static_template_path, output_path):
-    with open(static_template_path, "r") as staticf:
-        parser = Parser()
-        for line in staticf:
-            expressions = parser.parse(line)
-            compilator_placeholder(expressions)
+    static_template_file = open(static_template_path, "r")
+    compiled_output_file = open(output_path, "w")
+    parser = Parser()
+    compiler = Compiler("str_list", 1)
+    for line in static_template_file:
+        expressions = parser.parse(line)
+        for expression in expressions:
+            compiled_expression = compiler.compile_expression(
+                expression["type"],
+                expression["content"],
+                expression["level"])
+            compiled_output_file.write(compiled_expression)
