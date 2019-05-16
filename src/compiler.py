@@ -186,7 +186,8 @@ class Compiler:
                                                       hierarchical_level, True)
             variables[index] = compiled_variable
         compiled_if_expression = "if " + variables[0] + " " \
-                                 + comparison_operator + " " + variables[1]
+                                 + comparison_operator + " " + variables[1] \
+                                 + ":"
 
         compiled_if_expression = self.indent(compiled_if_expression,
                                              hierarchical_level)
@@ -207,7 +208,7 @@ class Compiler:
                                                            hierarchical_level,
                                                            True)
         compiled_for_expression = for_expression.replace(
-            sequence_variable, " " + compiled_sequence_variable)
+            sequence_variable, " " + compiled_sequence_variable) + ":"
         compiled_for_expression = self.indent(compiled_for_expression,
                                               hierarchical_level)
         return compiled_for_expression
@@ -287,9 +288,14 @@ class Compiler:
 
 def compile_template(static_template_path, output_path):
     static_template_file = open(static_template_path, "r")
-    compiled_output_file = open(output_path, "w")
+    compilation_output_file = open(output_path, "w")
+
     parser = Parser()
     compiler = Compiler("str_list", 1)
+
+    add_output_file_header(compilation_output_file, compiler.indentation,
+                           compiler.string_list_identifier)
+
     for line in static_template_file:
         expressions = parser.parse(line)
         for expression in expressions:
@@ -297,4 +303,25 @@ def compile_template(static_template_path, output_path):
                 expression["type"],
                 expression["content"],
                 expression["level"])
-            compiled_output_file.write(compiled_expression)
+            compilation_output_file.write(compiled_expression)
+
+    add_output_file_footer(compilation_output_file, compiler.indentation,
+                           compiler.string_list_identifier)
+
+
+def add_output_file_header(compiled_output_file, indentation,
+                           string_list_identifier):
+    output_file_header = "def build_text_file(context, output_path):\n" \
+                         + indentation + string_list_identifier + " = []\n"
+    compiled_output_file.write(output_file_header)
+
+
+def add_output_file_footer(compiled_output_file, indentation,
+                           string_list_identifier):
+    output_file_footer = "\n\n" + indentation \
+                         + "output_file = open(output_path, 'w')\n" \
+                         + indentation \
+                         + "for string in " + string_list_identifier + ":\n" \
+                         + indentation + indentation \
+                         + "output_file.write(string)\n"
+    compiled_output_file.write(output_file_footer)
