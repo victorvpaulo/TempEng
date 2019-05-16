@@ -2,6 +2,7 @@ import argparse
 import sys
 import os
 from pathlib import Path
+from compiler import compile_template
 
 
 def exit_on_arg_error(errormsg):
@@ -88,7 +89,7 @@ if args.compile is not None:
                               " file (--compileoutput) .")
     else:
         compile_output_path = Path(str(static_template_path) + ".py")
-    placeholder_for_compilation(static_template_path, compile_output_path)
+    compile_template(static_template_path, compile_output_path)
 if args.execute:
     template_path = None
     if compile_output_path is None:
