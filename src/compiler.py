@@ -306,6 +306,8 @@ def compile_template(static_template_path, output_path):
     add_output_file_footer(compilation_output_file, compiler.indentation,
                            compiler.string_list_identifier)
 
+    print("Template compiled. Sent to:\n\t" + str(output_path))
+
 
 def add_output_file_header(compiled_output_file, indentation,
                            string_list_identifier):
@@ -321,5 +323,5 @@ def add_output_file_footer(compiled_output_file, indentation,
                          + indentation \
                          + "for string in " + string_list_identifier + ":\n" \
                          + indentation + indentation \
-                         + "output_file.write(srt(string))\n"
+                         + "output_file.write(str(string))\n"
     compiled_output_file.write(output_file_footer)
