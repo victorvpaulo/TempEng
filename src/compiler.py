@@ -151,16 +151,14 @@ class Compiler:
         self.initial_indent_level = initial_indent_level
         self.indentation = indentation
         self.string_variable_counter = 0
-        # TODO:
-        # Context é o nome do dicionário sendo passado com dados
-        # dinâmicos na execução.
-        # portanto, ele tem escopo global (nível -1).
-        # O que eu preciso lembrar é que o dicionário passado não
-        # pode ter nenhuma chave
-        # chamada contexto. Se não é possível confundir os escopos
-        # (ver método compile variable)
-        # isso tem que ocasionar uma checagem de erro no executor,
-        # pra ver se tem alguma variável contexto no dicionário.
+        # A for loop variable will have scope level 1
+        # (Like product in 'for product in products').
+        # If the for loop is nested inside another for loop
+        # the variable will have scope level 2, and so on.
+        # In the compiled template context is the identifier of
+        # the dictionary containing dynamic data to be se inserted.
+        # As such, it has a kind of global scope in the template module,
+        # represented by a -1 scope level in the code below.
         self.scope_variables = [("context", -1)]
 
     def compile_expression(self, expression_type, expression_content,
@@ -277,7 +275,7 @@ class Compiler:
         variable = self.get_element_of_sequence(for_expression)
         self.scope_variables.append((variable, hierarchical_level))
 
-    def remove_variables_out_of_scope(self, hierarchical_level):
+    def remove_out_of_scope_variables(self, hierarchical_level):
         for variable in self.scope_variables[::-1]:
             variable_level = variable[1]
             if variable_level <= hierarchical_level:
@@ -308,7 +306,6 @@ def compile_template(static_template_path, output_path):
     add_output_file_footer(compilation_output_file, compiler.indentation,
                            compiler.string_list_identifier)
 
-
 def add_output_file_header(compiled_output_file, indentation,
                            string_list_identifier):
     output_file_header = "def build_text_file(context, output_path):\n" \
@@ -323,5 +320,5 @@ def add_output_file_footer(compiled_output_file, indentation,
                          + indentation \
                          + "for string in " + string_list_identifier + ":\n" \
                          + indentation + indentation \
-                         + "output_file.write(string)\n"
+                         + "output_file.write(srt(string))\n"
     compiled_output_file.write(output_file_footer)
