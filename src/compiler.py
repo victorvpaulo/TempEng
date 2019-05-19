@@ -306,6 +306,7 @@ def compile_template(static_template_path, output_path):
     add_output_file_footer(compilation_output_file, compiler.indentation,
                            compiler.string_list_identifier)
 
+
 def add_output_file_header(compiled_output_file, indentation,
                            string_list_identifier):
     output_file_header = "def build_text_file(context, output_path):\n" \
