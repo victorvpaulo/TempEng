@@ -1,26 +1,16 @@
 import argparse
-import os
 import sys
 from pathlib import Path
 
 from compiler import compile_template
+from executor import execute_compiled_template
+from utils import get_timestamp
 
 
 def exit_on_arg_error(errormsg):
     print(errormsg)
     parser.print_usage()
     sys.exit(1)
-
-
-def valid_file_path(path):
-    return os.path.isfile(path)
-
-
-def placeholder_for_execution(template_path, context_path,
-                              execute_output_path):
-    print(template_path)
-    print(context_path)
-    print(execute_output_path)
 
 
 parser = argparse.ArgumentParser(
@@ -31,11 +21,15 @@ parser = argparse.ArgumentParser(
 parser.add_argument("-c", "--compile", type=str,
                     metavar="<file path>",
                     help=" Creates a template from a static file.")
+# Modificar pra ficar igual à descrição.
 parser.add_argument("-co", "--compileoutput", type=str,
                     metavar="<file path>",
                     help=" Defines the output path for the compiled template."
+                         " It must be a valid python module name, else"
+                         " execution will fail."
                          " If not provided, the output will be sent to"
-                         " <static template file path>.py")
+                         " the same directory of the provided static template"
+                         " file, under the name 'tmplt<timestamp>.py'")
 
 parser.add_argument("-e", "--execute", default=False, action="store_true",
                     help=" Executes a compiled template, pluging dynamic data"
@@ -60,7 +54,7 @@ parser.add_argument("-eo", "--executeoutput", type=str,
                     metavar="<directory path>",
                     help=" Directory path to store the output of the execution"
                          " operation. If not provided, the directory where the"
-                         " program is located will be used.")
+                         " context file is located will be used.")
 args = parser.parse_args()
 
 args_received = len(sys.argv)
@@ -75,46 +69,54 @@ if args.compile is None and not args.execute:
 static_template_path = None
 compile_output_path = None
 if args.compile is not None:
-    static_template_path = Path(args.compile)
-    if not valid_file_path(static_template_path):
+    static_template_path = Path(args.compile).resolve()
+    if not static_template_path.is_file():
         exit_on_arg_error("ERROR - Invalid path for static template file"
                           " (--compile).")
     if args.compileoutput is not None:
-        compile_output_path = Path(
-            args.compileoutput.replace(".py", "") + ".py")
-        if not valid_file_path(args.compileoutput):
-            exit_on_arg_error("ERROR - Invalid path for compilation output"
-                              " file (--compileoutput) .")
+        compile_output_path = Path(args.compileoutput).resolve()
+        if not compile_output_path.parent.exists():
+            exit_on_arg_error("ERROR - Invalid output path for compilation"
+                              " - The output path directory does not exist."
+                              " (--compileoutput).")
     else:
-        compile_output_path = Path(str(static_template_path) + ".py")
+        compile_file_name = "tmplt" + get_timestamp() + ".py"
+        compile_output_path = static_template_path.parent / compile_file_name
+
     compile_template(static_template_path, compile_output_path)
+
 if args.execute:
-    template_path = None
+    template_path =None
+    template_path_parent_directory = None
+    template_module = None
     if compile_output_path is None:
         if args.template is None:
             exit_on_arg_error("ERROR - Template argument must be passed when"
                               " execution does not occur along with"
-                              " compilation."
-                              " be executed (--template).")
-        template_path = Path(args.template)
-        if not valid_file_path(template_path):
+                              " compilation (--template).")
+        template_path = Path(args.template).resolve()
+        if not template_path.is_file():
             exit_on_arg_error("ERROR - Invalid path for the template to"
                               " be executed (--template).")
     else:
         template_path = compile_output_path
+    template_path_parent_directory = template_path.parent
+    template_module = template_path.parts[-1].replace(".py", "")
     if args.context is None:
         exit_on_arg_error("ERROR - Template execution requires a data context"
                           " (--context)")
-    context_path = Path(args.context)
-    if not valid_file_path(context_path):
+    context_path = Path(args.context).resolve()
+    if not context_path.is_file():
         exit_on_arg_error("ERROR - Invalid path for data context"
                           " (--context).")
-    execute_output_path = ""
     if args.executeoutput is not None:
-        execute_output_path = Path(args.executeoutput)
-        if valid_file_path(execute_output_path):
-            exit_on_arg_error("ERROR - Directory path for execution output"
-                              " is a file path (--executeoutput).")
+        execute_output_path = Path(args.executeoutput).resolve()
+        if not execute_output_path.is_dir():
+            exit_on_arg_error("ERROR - Path for execution output is not"
+                              " a directory path (--executeoutput).")
+    else:
+        execute_output_path = context_path.parent
 
-        placeholder_for_execution(template_path, context_path,
-                                  execute_output_path)
+    execute_compiled_template(template_path_parent_directory,
+                              template_module,
+                              context_path, execute_output_path)
