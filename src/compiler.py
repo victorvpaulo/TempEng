@@ -175,21 +175,35 @@ class Compiler:
                                               hierarchical_level)
 
     def compile_if(self, if_expression, hierarchical_level):
-        comparison_expression = if_expression.replace("if", "").strip()
+        comparison_expression = if_expression.replace("if", "")
         comparison_operator = self.get_comparison_operator(
             comparison_expression)
-        variables = comparison_expression.split(comparison_operator)
-        for index in range(0, len(variables)):
-            compiled_variable = self.compile_variable(variables[index],
-                                                      hierarchical_level, True)
-            variables[index] = compiled_variable
-        compiled_if_expression = "if " + variables[0] + " " \
-                                 + comparison_operator + " " + variables[1] \
+        values_to_be_compared = comparison_expression.split(
+            comparison_operator)
+        for index in range(0, len(values_to_be_compared)):
+            value = values_to_be_compared[index].strip()
+            if self.if_value_is_static_string(value):
+                values_to_be_compared[index] = value
+            else:
+                values_to_be_compared[index] = self.compile_variable(value,
+                                                       hierarchical_level,
+                                                       True)
+        compiled_if_expression = "if " + values_to_be_compared[0] + " " \
+                                 + comparison_operator + " " + \
+                                 values_to_be_compared[1] \
                                  + ":"
 
         compiled_if_expression = self.indent(compiled_if_expression,
                                              hierarchical_level)
         return compiled_if_expression
+
+    def if_value_is_static_string(self, if_value):
+        starting_character = if_value[0]
+        ending_character = if_value[-1]
+        if (starting_character == '"' and ending_character == '"') or (
+                starting_character == "'" and ending_character == "'"):
+            return True
+        return False
 
     def get_comparison_operator(self, if_expression):
         operators = ("==", "!=", ">", ">=", "<", "<=")
@@ -325,3 +339,4 @@ def add_output_file_footer(compiled_output_file, indentation,
                          + indentation + indentation \
                          + "output_file.write(str(string))\n"
     compiled_output_file.write(output_file_footer)
+
