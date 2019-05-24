@@ -51,7 +51,6 @@ def execute_compiled_template(template_path, template_module_name,
     for context in contexts:
         if is_valid_context(context):
             file_path = build_file_from_template(context, output_path, template)
-            print("a")
             print("File generated. Sent to:\n\t" + str(file_path))
         else:
             # TODO: add a better error handling.
