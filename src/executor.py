@@ -4,7 +4,7 @@ from sys import path as syspath
 from utils import get_timestamp
 
 
-def build_file_from_template(context, output_path, template):
+def generate_file(context, output_path, template):
     if "$file_name$" in context:
         file_name = context["$file_name$"]
     else:
@@ -48,10 +48,13 @@ def execute_compiled_template(template_path, template_module_name,
                               context_file_path, output_path):
     template = import_compiled_template(template_path, template_module_name)
     contexts = get_data_contexts(context_file_path)
+    counter = 0
     for context in contexts:
+        json_object_identifier = "Json Object at index " + counter
         if is_valid_context(context):
-            file_path = build_file_from_template(context, output_path, template)
-            print("File generated. Sent to:\n\t" + str(file_path))
+            file_path = generate_file(context, output_path, template)
+            print(json_object_identifier + "-- File generated. "
+                  + "Sent to:\n\t" + str(file_path))
         else:
-            # TODO: add a better error handling.
-            print("ERROR - Invalid Context")
+            print(json_object_identifier + " -- ERROR: Invalid data context.")
+        counter += 1
