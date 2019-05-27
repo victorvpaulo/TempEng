@@ -54,9 +54,40 @@ class ParserDrivingCarUnitTest(TestCase):
         self.assertEqual(self.parser.extract_static_expression(
             "aabc {{abc}}", self.parser.VARIABLE_START_MARK), "aabc ")
         self.assertEqual(self.parser.extract_static_expression(
-            "aabc {{abc}} a",self.parser.VARIABLE_START_MARK), "aabc ")
+            "aabc {%abc%} a", self.parser.CONTROL_START_MARK), "aabc ")
         self.assertEqual(self.parser.extract_static_expression(
             "{{abc}} a", self.parser.VARIABLE_START_MARK), "")
 
+    def test_extract_dynamic_expression(self):
+        self.assertEqual(self.parser.extract_dynamic_expression(
+            "{{abc}}aabc", self.parser.VARIABLE_END_MARK), "{{abc}}")
+        self.assertEqual(self.parser.extract_dynamic_expression(
+            "{%abc%} aabc a", self.parser.CONTROL_END_MARK), "{%abc%}")
+        self.assertEqual(self.parser.extract_dynamic_expression(
+            "{{abc}} a {%abc%}", self.parser.VARIABLE_END_MARK), "{{abc}}")
 
+    def test_remove_markers(self):
+        self.assertEqual(
+            self.parser.remove_markers("{{abc}}",
+                                       self.parser.VARIABLE_START_MARK,
+                                       self.parser.VARIABLE_END_MARK), "abc")
+        self.assertEqual(
+            self.parser.remove_markers("{%def%}",
+                                       self.parser.CONTROL_START_MARK,
+                                       self.parser.CONTROL_END_MARK), "def")
+        self.assertEqual(
+            self.parser.remove_markers("{{ abc }}",
+                                       self.parser.VARIABLE_START_MARK,
+                                       self.parser.VARIABLE_END_MARK), " abc ")
+        self.assertEqual(
+            self.parser.remove_markers("{% def %}",
+                                       self.parser.CONTROL_START_MARK,
+                                       self.parser.CONTROL_END_MARK), " def ")
 
+    def test_get_remaining_text(self):
+        self.assertEqual(
+            self.parser.get_remaining_text("{{abc}}", "{{abc}} {%def%}"),
+            " {%def%}")
+        self.assertEqual(
+            self.parser.get_remaining_text("{%abc%}", "{%abc%}xyx"),
+            "xyx")
