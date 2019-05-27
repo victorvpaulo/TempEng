@@ -40,17 +40,11 @@ class Parser:
         expression = text[0:expression_end]
         return expression
 
-    def remove_markers(self, expression, end_mark,
-                       start_mark=None, strip=False):
+    def remove_markers(self, expression, start_mark, end_mark):
+        expression_starting_index = expression.find(start_mark) + 2
         expression_ending_index = expression.find(end_mark)
-        expression_starting_index = 0
-        if start_mark is not None:
-            expression_starting_index = expression.find(start_mark) + 2
-
         expression_content = expression[
                              expression_starting_index:expression_ending_index]
-        if strip:
-            expression_content = expression_content.strip()
         return expression_content
 
     def get_remaining_text(self, raw_expression, text):
@@ -113,16 +107,15 @@ class Parser:
                     self.extract_dynamic_expression(text,
                                                     self.CONTROL_END_MARK)
                 content = self.remove_markers(
-                    raw_expression, self.CONTROL_END_MARK,
-                    self.CONTROL_START_MARK, True)
+                    raw_expression, self.CONTROL_START_MARK,
+                    self.CONTROL_END_MARK).strip()
                 expression_type = self.find_control_expression_type(content)
             elif self.starts_with_variable_expression(text):
-                raw_expression = \
-                    self.extract_dynamic_expression(text,
-                                                    self.VARIABLE_END_MARK)
+                raw_expression = self.extract_dynamic_expression(
+                    text, self.VARIABLE_END_MARK)
                 content = self.remove_markers(
-                    raw_expression, self.VARIABLE_END_MARK,
-                    self.VARIABLE_START_MARK, True)
+                    raw_expression, self.VARIABLE_START_MARK,
+                    self.VARIABLE_END_MARK).strip()
                 expression_type = "variable"
             else:
                 raw_expression = text
@@ -187,9 +180,8 @@ class Compiler:
             if self.if_value_is_static_string(value):
                 values_to_be_compared[index] = value
             else:
-                values_to_be_compared[index] = self.compile_variable(value,
-                                                       hierarchical_level,
-                                                       True)
+                values_to_be_compared[index] = self.compile_variable(
+                    value, hierarchical_level, True)
         compiled_if_expression = "if " + values_to_be_compared[0] + " " \
                                  + comparison_operator + " " + \
                                  values_to_be_compared[1] \
@@ -341,4 +333,3 @@ def add_output_file_footer(compiled_output_file, indentation,
                          + indentation + indentation \
                          + "output_file.write(str(string))\n"
     compiled_output_file.write(output_file_footer)
-
