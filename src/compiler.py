@@ -8,12 +8,14 @@ class Parser:
         self.hierarchical_level = 0
 
     def starts_with_control_expression(self, text):
-        if text[0:2] == "{%" and "%}" in text:
+        if text[0:2] == self.CONTROL_START_MARK \
+                and self.CONTROL_END_MARK in text:
             return True
         return False
 
     def starts_with_variable_expression(self, text):
-        if text[0:2] == "{{" and "}}" in text:
+        if text[0:2] == self.VARIABLE_START_MARK \
+                and self.VARIABLE_END_MARK in text:
             return True
         return False
 
