@@ -102,7 +102,7 @@ class ParserDrivingCarUnitTest(TestCase):
         self.assertEqual(
             self.p.is_just_an_indent_level_marker("static_string"), False)
 
-    def(self):
+    def test_compute_next_indent_level(self):
         self.assertEqual(self.p.compute_next_indent_level("for"), 1)
         self.assertEqual(self.p.compute_next_indent_level("if"), 2)
         self.assertEqual(self.p.compute_next_indent_level("end"), 1)
