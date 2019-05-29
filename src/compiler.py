@@ -5,7 +5,7 @@ class Parser:
     CONTROL_END_MARK = "%}"
 
     def __init__(self):
-        self.hierarchical_level = 0
+        self.indent_level = 0
 
     def starts_with_control_expression(self, text):
         if text[0:2] == self.CONTROL_START_MARK \
@@ -65,20 +65,20 @@ class Parser:
         else:
             return self.VARIABLE_START_MARK
 
-    def is_just_a_hierarchical_level_marker(self, expression_type):
+    def is_just_an_indent_level_marker(self, expression_type):
         # {%endif%} and {%endfor%} statements exist just to sign that
         # the block of code inside the if/for is finished, and the next
-        # statement has the same indent (hierarchical) level than the
+        # statement has the same indent level than the
         # for/if statement. As such, there is no need to include this
         # kind of block in the expressions to be compiled.
 
         return expression_type == "end"
 
-    def compute_next_hierarchical_level(self, expression_type):
+    def compute_next_indent_level(self, expression_type):
         if expression_type == "if" or expression_type == "for":
-            self.hierarchical_level += 1
+            self.indent_level += 1
         elif expression_type == "end":
-            self.hierarchical_level -= 1
+            self.indent_level -= 1
 
     def find_control_expression_type(self, expression_content):
         if expression_content[0:2] == "if":
@@ -90,7 +90,7 @@ class Parser:
 
     def build_expression(self, content, expression_type):
         expression = {"type": expression_type,
-                      "level": self.hierarchical_level,
+                      "level": self.indent_level,
                       "content": content}
 
         return expression
@@ -103,9 +103,8 @@ class Parser:
         expressions = []
         while text != "":
             if self.starts_with_control_expression(text):
-                raw_expression = \
-                    self.extract_dynamic_expression(text,
-                                                    self.CONTROL_END_MARK)
+                raw_expression = self.extract_dynamic_expression(
+                    text, self.CONTROL_END_MARK)
                 content = self.remove_markers(
                     raw_expression, self.CONTROL_START_MARK,
                     self.CONTROL_END_MARK).strip()
@@ -128,10 +127,10 @@ class Parser:
                     content = raw_expression
                 expression_type = "static_string"
 
-            if not self.is_just_a_hierarchical_level_marker(expression_type):
+            if not self.is_just_an_indent_level_marker(expression_type):
                 self.add_expression(content, expression_type, expressions)
             text = self.get_remaining_text(raw_expression, text)
-            self.compute_next_hierarchical_level(expression_type)
+            self.compute_next_indent_level(expression_type)
         return expressions
 
 
@@ -157,19 +156,19 @@ class Compiler:
         self.scope_variables = [("context", -1)]
 
     def compile_expression(self, expression_type, expression_content,
-                           hierarchical_level):
+                           indent_level):
         if expression_type == "if":
-            return self.compile_if(expression_content, hierarchical_level)
+            return self.compile_if(expression_content, indent_level)
         elif expression_type == "for":
-            return self.compile_for(expression_content, hierarchical_level)
+            return self.compile_for(expression_content, indent_level)
         elif expression_type == "variable":
             return self.compile_variable(expression_content,
-                                         hierarchical_level)
+                                         indent_level)
         else:
             return self.compile_static_string(expression_content,
-                                              hierarchical_level)
+                                              indent_level)
 
-    def compile_if(self, if_expression, hierarchical_level):
+    def compile_if(self, if_expression, indent_level):
         comparison_expression = if_expression.replace("if", "")
         comparison_operator = self.get_comparison_operator(
             comparison_expression)
@@ -181,14 +180,14 @@ class Compiler:
                 values_to_be_compared[index] = value
             else:
                 values_to_be_compared[index] = self.compile_variable(
-                    value, hierarchical_level, True)
+                    value, indent_level, True)
         compiled_if_expression = "if " + values_to_be_compared[0] + " " \
                                  + comparison_operator + " " + \
                                  values_to_be_compared[1] \
                                  + ":"
 
         compiled_if_expression = self.indent(compiled_if_expression,
-                                             hierarchical_level)
+                                             indent_level)
         return compiled_if_expression
 
     def if_value_is_static_string(self, if_value):
@@ -206,17 +205,17 @@ class Compiler:
                 return operator
         return None
 
-    def compile_for(self, for_expression, hierarchical_level):
-        self.add_variable_to_scope(for_expression, hierarchical_level)
+    def compile_for(self, for_expression, indent_level):
+        self.add_variable_to_scope(for_expression, indent_level)
 
         sequence_variable = self.get_sequence_variable(for_expression)
         compiled_sequence_variable = self.compile_variable(sequence_variable,
-                                                           hierarchical_level,
+                                                           indent_level,
                                                            True)
         compiled_for_expression = for_expression.replace(
             sequence_variable, " " + compiled_sequence_variable) + ":"
         compiled_for_expression = self.indent(compiled_for_expression,
-                                              hierarchical_level)
+                                              indent_level)
         return compiled_for_expression
 
     def get_element_of_sequence(self, for_expression):
@@ -225,7 +224,7 @@ class Compiler:
     def get_sequence_variable(self, for_expression):
         return for_expression[for_expression.index("in") + 2:]
 
-    def compile_variable(self, raw_variable, hierarchical_level,
+    def compile_variable(self, raw_variable, indent_level,
                          control_expression_variable=False):
         keys = raw_variable.split(".")
         scope_variable = self.get_scope_variable(keys[0])
@@ -238,34 +237,34 @@ class Compiler:
             compiled_expression += "['" + key + "']"
         if not control_expression_variable:
             compiled_expression = self.compile_string(
-                compiled_expression, hierarchical_level)
+                compiled_expression, indent_level)
 
         return compiled_expression
 
-    def compile_static_string(self, raw_string, hierarchical_level):
+    def compile_static_string(self, raw_string, indent_level):
         string = repr(raw_string)
-        return self.compile_string(string, hierarchical_level)
+        return self.compile_string(string, indent_level)
 
-    def compile_string(self, string, hierarchical_level):
+    def compile_string(self, string, indent_level):
         string_variable_identifier = "str_" + str(self.string_variable_counter)
         self.string_variable_counter += 1
         header = string_variable_identifier + " = "
-        header = self.indent(header, hierarchical_level)
+        header = self.indent(header, indent_level)
         append_statement = self.get_append_string_to_list_statement(
-            string_variable_identifier, hierarchical_level)
+            string_variable_identifier, indent_level)
         compiled_expression = header + string + append_statement
         return compiled_expression
 
     def get_append_string_to_list_statement(self, string_variable_identifier,
-                                            hierarchical_level):
+                                            indent_level):
         append_statement = self.string_list_identifier \
                            + ".append(" + string_variable_identifier + ")"
-        append_statement = self.indent(append_statement, hierarchical_level)
+        append_statement = self.indent(append_statement, indent_level)
         return append_statement
 
-    def indent(self, compiled_expression, hierarchical_level):
+    def indent(self, compiled_expression, indent_level):
         indented_expression = "\n"
-        for level in range(0, hierarchical_level + self.initial_indent_level):
+        for level in range(0, indent_level + self.initial_indent_level):
             indented_expression += self.indentation
         indented_expression += compiled_expression
         return indented_expression
@@ -279,14 +278,14 @@ class Compiler:
                 return scope_variable[0]
             return self.scope_variables[0][0]
 
-    def add_variable_to_scope(self, for_expression, hierarchical_level):
+    def add_variable_to_scope(self, for_expression, indent_level):
         variable = self.get_element_of_sequence(for_expression)
-        self.scope_variables.append((variable, hierarchical_level))
+        self.scope_variables.append((variable, indent_level))
 
-    def remove_out_of_scope_variables(self, hierarchical_level):
+    def remove_out_of_scope_variables(self, indent_level):
         for variable in self.scope_variables[::-1]:
             variable_level = variable[1]
-            if variable_level <= hierarchical_level:
+            if variable_level <= indent_level:
                 self.scope_variables.remove(variable)
             else:
                 return
