@@ -2,7 +2,7 @@ from unittest import TestCase
 from src.compiler import Parser
 
 
-class ParserDrivingCarUnitTest(TestCase):
+class ParserUnitTest(TestCase):
     def setUp(self):
         self.p = Parser()
 
