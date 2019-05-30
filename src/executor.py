@@ -50,7 +50,7 @@ def execute_compiled_template(template_path, template_module_name,
     contexts = get_data_contexts(context_file_path)
     counter = 0
     for context in contexts:
-        json_object_identifier = "Json Object at index " + counter
+        json_object_identifier = "Json Object at index " + str(counter)
         if is_valid_context(context):
             file_path = generate_file(context, output_path, template)
             print(json_object_identifier + "-- File generated. "
