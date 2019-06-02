@@ -157,6 +157,8 @@ class Compiler:
 
     def compile_expression(self, expression_type, expression_content,
                            indent_level):
+        self.remove_out_of_scope_variables(
+            indent_level + self.initial_indent_level)
         if expression_type == "if":
             return self.compile_if(expression_content, indent_level)
         elif expression_type == "for":
@@ -226,12 +228,13 @@ class Compiler:
 
     def compile_variable(self, raw_variable, indent_level,
                          control_expression_variable=False):
+        raw_variable = raw_variable.strip()
         keys = raw_variable.split(".")
         scope_variable = self.get_scope_variable(keys[0])
         compiled_expression = scope_variable
 
         for index in range(0, len(keys)):
-            key = keys[index].strip()
+            key = keys[index]
             if index == 0 and key == scope_variable:
                 continue
             compiled_expression += "['" + key + "']"
@@ -280,12 +283,13 @@ class Compiler:
 
     def add_variable_to_scope(self, for_expression, indent_level):
         variable = self.get_element_of_sequence(for_expression)
-        self.scope_variables.append((variable, indent_level))
+        self.scope_variables.append(
+            (variable, indent_level + self.initial_indent_level))
 
     def remove_out_of_scope_variables(self, indent_level):
         for variable in self.scope_variables[::-1]:
             variable_level = variable[1]
-            if variable_level <= indent_level:
+            if variable_level >= indent_level:
                 self.scope_variables.remove(variable)
             else:
                 return
