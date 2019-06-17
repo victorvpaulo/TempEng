@@ -272,14 +272,11 @@ class Compiler:
         indented_expression += compiled_expression
         return indented_expression
 
-    def method_name(self, idented_expression):
-        return idented_expression
-
     def get_scope_variable(self, variable):
         for scope_variable in self.scope_variables[::-1]:
             if scope_variable[0] == variable:
                 return scope_variable[0]
-            return self.scope_variables[0][0]
+        return self.scope_variables[0][0]
 
     def add_variable_to_scope(self, for_expression, indent_level):
         variable = self.get_element_of_sequence(for_expression)
