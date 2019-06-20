@@ -201,7 +201,7 @@ class Compiler:
         return False
 
     def get_comparison_operator(self, if_expression):
-        operators = ("==", "!=", ">", ">=", "<", "<=")
+        operators = ("==", "!=", ">=", ">",  "<=", "<")
         for operator in operators:
             if operator in if_expression:
                 return operator
