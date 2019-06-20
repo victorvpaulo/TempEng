@@ -225,7 +225,7 @@ class Compiler:
         return for_expression[3:for_expression.index("in")].strip()
 
     def get_sequence(self, for_expression):
-        return for_expression[for_expression.index("in") + 2:]
+        return for_expression[for_expression.index("in") + 2:].strip()
 
     def compile_variable(self, raw_variable, indent_level,
                          control_expression_variable=False):
