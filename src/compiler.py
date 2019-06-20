@@ -208,14 +208,15 @@ class Compiler:
         return None
 
     def compile_for(self, for_expression, indent_level):
-        self.add_variable_to_scope(for_expression, indent_level)
+        element_of_sequence = self.get_element_of_sequence(for_expression)
+        self.add_variable_to_scope(element_of_sequence, indent_level)
 
-        sequence_variable = self.get_sequence_variable(for_expression)
-        compiled_sequence_variable = self.compile_variable(sequence_variable,
+        sequence = self.get_sequence(for_expression)
+        compiled_sequence_variable = self.compile_variable(sequence,
                                                            indent_level,
                                                            True)
         compiled_for_expression = for_expression.replace(
-            sequence_variable, " " + compiled_sequence_variable) + ":"
+            sequence, " " + compiled_sequence_variable) + ":"
         compiled_for_expression = self.indent(compiled_for_expression,
                                               indent_level)
         return compiled_for_expression
@@ -223,7 +224,7 @@ class Compiler:
     def get_element_of_sequence(self, for_expression):
         return for_expression[3:for_expression.index("in")].strip()
 
-    def get_sequence_variable(self, for_expression):
+    def get_sequence(self, for_expression):
         return for_expression[for_expression.index("in") + 2:]
 
     def compile_variable(self, raw_variable, indent_level,
@@ -278,8 +279,7 @@ class Compiler:
                 return scope_variable[0]
         return self.scope_variables[0][0]
 
-    def add_variable_to_scope(self, for_expression, indent_level):
-        variable = self.get_element_of_sequence(for_expression)
+    def add_variable_to_scope(self, variable, indent_level):
         self.scope_variables.append(
             (variable, indent_level + self.initial_indent_level))
 
