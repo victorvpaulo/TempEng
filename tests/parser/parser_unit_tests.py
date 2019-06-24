@@ -6,6 +6,45 @@ class ParserUnitTest(TestCase):
     def setUp(self):
         self.p = Parser()
 
+    def test_parse(self):
+        self.assertEqual(self.p.parse("abc"), [
+            {"type": "static_string", "level": 0, "content": "abc"}])
+        self.assertEqual(self.p.parse("{{a.b.c}}"), [
+            {"type": "variable", "level": 0, "content": "a.b.c"}])
+        self.assertEqual(self.p.parse("{%if x == y%}"), [
+            {"type": "if", "level": 0, "content": "if x == y"}])
+        self.p.indent_level = 0
+
+        self.assertEqual(self.p.parse("{%for x in y%}"), [
+            {"type": "for", "level": 0, "content": "for x in y"}])
+        self.p.indent_level = 0
+
+        self.assertEqual(self.p.parse("{%for x in y%}"), [
+            {"type": "for", "level": 0, "content": "for x in y"}])
+        self.assertEqual(self.p.parse("{%for z in w%}"), [
+            {"type": "for", "level": 1, "content": "for z in w"}])
+        self.p.indent_level = 0
+
+        self.assertEqual(self.p.parse("{%for x in y%}{{x.z}}abc{%endfor%}fgh"),
+                         [{"type": "for", "level": 0, "content": "for x in y"},
+                          {"type": "variable", "level": 1,
+                           "content": "x.z"},
+                          {"type": "static_string", "level": 1,
+                           "content": "abc"},
+                          {"type": "static_string", "level": 0,
+                           "content": "fgh"}])
+        self.p.indent_level = 0
+
+        self.assertEqual(self.p.parse("{%if x == y%}{{x.z}}abc{%endif%}fgh"),
+                         [{"type": "if", "level": 0, "content": "if x == y"},
+                          {"type": "variable", "level": 1,
+                           "content": "x.z"},
+                          {"type": "static_string", "level": 1,
+                           "content": "abc"},
+                          {"type": "static_string", "level": 0,
+                           "content": "fgh"}])
+        self.p.indent_level = 0
+
     def test_starts_with_control_expression(self):
         self.assertEqual(
             self.p.starts_with_control_expression("{{abc}}"), False)
