@@ -216,7 +216,7 @@ class Compiler:
                                                            indent_level,
                                                            True)
         compiled_for_expression = for_expression.replace(
-            sequence, " " + compiled_sequence_variable) + ":"
+            sequence, compiled_sequence_variable) + ":"
         compiled_for_expression = self.indent(compiled_for_expression,
                                               indent_level)
         return compiled_for_expression
