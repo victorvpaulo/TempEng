@@ -178,7 +178,9 @@ class Compiler:
             comparison_operator)
         for index in range(0, len(values_to_be_compared)):
             value = values_to_be_compared[index].strip()
-            if self.if_value_is_static_string(value):
+            if self.if_value_is_static_string(value) or \
+                    self.if_value_is_boolean(value) or \
+                    self.if_value_is_numeric(value):
                 values_to_be_compared[index] = value
             else:
                 values_to_be_compared[index] = self.compile_variable(
@@ -200,8 +202,16 @@ class Compiler:
             return True
         return False
 
+    def if_value_is_boolean(self, if_value):
+        if if_value == "True" or if_value == "False":
+            return True
+        return False
+
+    def if_value_is_numeric(self, if_value):
+        return if_value.replace(".", "", 1).isdigit()
+
     def get_comparison_operator(self, if_expression):
-        operators = ("==", "!=", ">=", ">",  "<=", "<")
+        operators = ("==", "!=", ">=", ">", "<=", "<")
         for operator in operators:
             if operator in if_expression:
                 return operator
