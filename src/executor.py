@@ -20,6 +20,9 @@ def import_compiled_template(template_path, module_name):
     return import_module(module_name)
 
 
+# The word "context" is reserved.
+# It cannot be used as a key in the data context dictionary.
+# However, it can be a key in dictionaries nested inside the main dictionary.
 def is_free_of_reserved_keywords(context):
     if "context" in context:
         return False
