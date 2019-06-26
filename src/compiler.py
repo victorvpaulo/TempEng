@@ -324,7 +324,11 @@ def compile_template(static_template_path, output_path):
     add_output_file_footer(compilation_output_file, compiler.indentation,
                            compiler.string_list_identifier)
 
-    print("Template compiled. Sent to:\n\t" + str(output_path))
+    compilation_output_file.flush()
+    compilation_output_file.close()
+    print("Template file sent to: " + str(output_path))
+
+    validate_template_code(output_path)
 
 
 def add_output_file_header(compiled_output_file, indentation,
@@ -343,3 +347,16 @@ def add_output_file_footer(compiled_output_file, indentation,
                          + indentation + indentation \
                          + "output_file.write(str(string))\n"
     compiled_output_file.write(output_file_footer)
+
+
+def validate_template_code(template_path):
+    template_file = open(template_path, 'r')
+    source_code = template_file.read()
+    template_file.close()
+    try:
+        compile(source_code, template_path, 'exec')
+    except (ValueError, SyntaxError) as e:
+        print("ERROR - Failed to compile the template.\n"
+              "\tThe resulting code was considered incorrect"
+              " by the python interpreter, which raised the following errors:")
+        raise e
