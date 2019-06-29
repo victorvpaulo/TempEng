@@ -1,0 +1,28 @@
+  {
+    "products": {
+      "quantity": 5
+    },
+    "maximum_price": 10,
+    "products_list": [
+      {
+        "name": "soap",
+        "price": 5
+      },
+      {
+        "name": "rice",
+        "price": 3
+      },
+      {
+        "name": "beans",
+        "price": 4
+      },
+      {
+        "name": "milk",
+        "price": 2
+      },
+      {
+        "name": "cream",
+        "price": 11
+      }
+    ]
+  }
