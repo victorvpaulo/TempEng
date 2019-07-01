@@ -302,7 +302,7 @@ class Compiler:
                 return
 
 
-def compile_template(static_template_path, output_path):
+def compile_template(static_template_path, output_path, silent=False):
     static_template_file = open(static_template_path, "r")
     compilation_output_file = open(output_path, "w")
 
@@ -326,7 +326,8 @@ def compile_template(static_template_path, output_path):
 
     compilation_output_file.flush()
     compilation_output_file.close()
-    print("Template file sent to: " + str(output_path))
+    if not silent:
+        print("Template file sent to: " + str(output_path))
 
     validate_template_code(output_path)
 
