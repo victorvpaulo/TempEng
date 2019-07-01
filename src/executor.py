@@ -48,7 +48,7 @@ def get_data_contexts(contexts_file_path):
 
 
 def execute_compiled_template(template_path, template_module_name,
-                              context_file_path, output_path):
+                              context_file_path, output_path, silent=False):
     template = import_compiled_template(template_path, template_module_name)
     contexts = get_data_contexts(context_file_path)
     counter = 0
@@ -56,8 +56,11 @@ def execute_compiled_template(template_path, template_module_name,
         json_object_identifier = "Json Object at index " + str(counter)
         if is_valid_context(context):
             file_path = generate_file(context, output_path, template)
-            print(json_object_identifier + "-- File generated. "
-                  + "Sent to:\n\t" + str(file_path))
+            if not silent:
+                print(json_object_identifier + "-- File generated. "
+                      + "Sent to:\n\t" + str(file_path))
         else:
-            print(json_object_identifier + " -- ERROR: Invalid data context.")
+            if not silent:
+                print(json_object_identifier +
+                      " -- ERROR: Invalid data context.")
         counter += 1
