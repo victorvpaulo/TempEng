@@ -25,6 +25,9 @@ class ExecutorUnitTest(TestCase):
         self.assertEqual(ex.is_valid_context(["abc"]), False)
         self.assertEqual(ex.is_valid_context({"context": ""}), False)
 
+    # Todo: Load test data path from file.
+
+
     def test_load_data_contexts_from_file(self):
         file_path_1 = Path(
             '../data/executorunittests/context_1.json')
