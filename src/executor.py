@@ -1,6 +1,7 @@
 import json
 from importlib import import_module, invalidate_caches
 from sys import path as syspath
+
 from utils import get_timestamp
 
 
@@ -60,7 +61,6 @@ def execute_compiled_template(template_path, template_module_name,
                 print(json_object_identifier + "-- File generated. "
                       + "Sent to:\n\t" + str(file_path))
         else:
-            if not silent:
-                print(json_object_identifier +
-                      " -- ERROR: Invalid data context.")
+            print(json_object_identifier +
+                  " -- ERROR: Invalid data context.")
         counter += 1
