@@ -1,0 +1,7 @@
+<p>Products:</p>
+<p>Products quantity: {{ products.quantity }}</p>
+<p>Maximum price: {{ maximum_price }}</p>
+<ul>
+{% for product in product_list %} <li>{{ product.name }}: {{ product.price }}{% if product.price > maximum_price %} <b> - ABOVE MAXIMUM PRICE</b>{% endif %}</li>
+{% endfor %}
+</ul>

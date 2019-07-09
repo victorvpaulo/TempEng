@@ -1,0 +1,51 @@
+[
+  { "$file_name$": "TEMP_result_1",
+    "products": {
+      "quantity": 5
+    },
+    "maximum_price": 10,
+    "product_list": [
+      {
+        "name": "soap",
+        "price": 5
+      },
+      {
+        "name": "rice",
+        "price": 3
+      },
+      {
+        "name": "beans",
+        "price": 4
+      },
+      {
+        "name": "milk",
+        "price": 2
+      },
+      {
+        "name": "cream",
+        "price": 11
+      }
+    ]
+  },
+  {
+    "$file_name$": "TEMP_result_2",
+    "products": {
+      "quantity": 3
+    },
+    "maximum_price": 10,
+    "product_list": [
+      {
+        "name": "beans",
+        "price": 4
+      },
+      {
+        "name": "milk",
+        "price": 2
+      },
+      {
+        "name": "cream",
+        "price": 11
+      }
+    ]
+  }
+]

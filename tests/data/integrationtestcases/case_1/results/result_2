@@ -1,0 +1,9 @@
+<p>Products:</p>
+<p>Products quantity: 3</p>
+<p>Maximum price: 10</p>
+<ul>
+ <li>beans: 4</li>
+ <li>milk: 2</li>
+ <li>cream: 11 <b> - ABOVE MAXIMUM PRICE</b></li>
+
+</ul>
