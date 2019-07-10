@@ -2,7 +2,7 @@ import json
 from importlib import import_module, invalidate_caches
 from sys import path as syspath
 
-from utils import get_timestamp
+from src.utils import get_timestamp
 
 
 def generate_file(context, output_path, template):

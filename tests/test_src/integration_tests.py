@@ -1,9 +1,9 @@
-from os import remove
+import os
 from pathlib import Path
 
+from config_reader import get_path_from_config
 from src.compiler import compile_template
 from src.executor import execute_compiled_template
-from config_reader import get_path_from_config
 
 
 def load_file_content(path):
@@ -15,11 +15,11 @@ def load_file_content(path):
 def clear_temp_files(path):
     for file_path in path.iterdir():
         if file_path.is_file() and file_path.name[0:4] == "TEMP":
-            remove(file_path)
+            os.remove(file_path)
         if file_path.is_dir() and file_path.name == "results":
             for fp in file_path.iterdir():
                 if fp.is_file() and fp.name[0:4] == "TEMP":
-                    remove(fp)
+                    os.remove(fp)
 
 
 def compare_expected_and_actual_results_from_execution(execution_path):
@@ -155,12 +155,8 @@ def run_integration_test(test_case_path):
 
 
 def run_all_integration_tests():
-    # Todo: Load test data path from file.
     tests_data_path = get_path_from_config('integration_tests_data')
     for test_case_path in tests_data_path.iterdir():
         if test_case_path.is_dir():
             run_integration_test(test_case_path)
             print("__________________________________________________________")
-
-
-run_all_integration_tests()

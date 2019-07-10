@@ -1,4 +1,14 @@
+import sys
+from pathlib import Path
+
+current_path = Path(__file__).resolve()
+test_path = current_path.parent.parent
+project_path = test_path.parent
+sys.path.append(str(test_path))
+sys.path.append(str(project_path))
+
 from unittest import TestCase
+
 from src.compiler import Parser
 
 
@@ -142,10 +152,14 @@ class ParserUnitTest(TestCase):
             self.p.is_just_an_indent_level_marker("static_string"), False)
 
     def test_compute_next_indent_level(self):
-        self.assertEqual(self.p.compute_next_indent_level("for"), 1)
-        self.assertEqual(self.p.compute_next_indent_level("if"), 2)
-        self.assertEqual(self.p.compute_next_indent_level("end"), 1)
-        self.assertEqual(self.p.compute_next_indent_level("end"), 0)
+        self.p.compute_next_indent_level("for")
+        self.assertEqual(self.p.indent_level, 1)
+        self.p.compute_next_indent_level("if")
+        self.assertEqual(self.p.indent_level, 2)
+        self.p.compute_next_indent_level("end")
+        self.assertEqual(self.p.indent_level, 1)
+        self.p.compute_next_indent_level("end")
+        self.assertEqual(self.p.indent_level, 0)
 
     def test_find_control_expression_type(self):
         self.assertEqual(

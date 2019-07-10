@@ -1,8 +1,17 @@
-from unittest import TestCase
+import sys
+from pathlib import Path
+
+current_path = Path(__file__).resolve()
+test_path = current_path.parent.parent
+project_path = test_path.parent
+sys.path.append(str(test_path))
+sys.path.append(str(project_path))
+
+import unittest
 from src.compiler import Compiler
 
 
-class CompilerUnitTest(TestCase):
+class CompilerUnitTest(unittest.TestCase):
     def setUp(self):
         self.c = Compiler("str_list", 1)
 
@@ -126,9 +135,9 @@ class CompilerUnitTest(TestCase):
 
     def test_compile_static_string(self):
         self.assertEqual(self.c.compile_static_string("abc", 0),
-                         "\n    str_0 = 'abc'\n     str_list.append(str_0)")
+                         "\n    str_0 = 'abc'\n    str_list.append(str_0)")
         self.assertEqual(self.c.compile_static_string('abc', 0),
-                         "\n    str_1 = 'abc'\n     str_list.append(str_1)")
+                         "\n    str_1 = 'abc'\n    str_list.append(str_1)")
 
     def test_compile_string(self):
         self.assertEqual(self.c.compile_static_string("abc def", 0),
@@ -181,3 +190,7 @@ class CompilerUnitTest(TestCase):
         self.c.scope_variables = [("context", -1), ("abc", 1), ("def", 2)]
         self.c.remove_out_of_scope_variables(1)
         self.assertSequenceEqual(self.c.scope_variables, [("context", -1)])
+
+
+if __name__ == '__main__':
+    unittest.main()
