@@ -11,7 +11,7 @@ sys.path.append(str(project_path))
 
 import argparse
 import os
-import integration_tests
+import tests.integration_tests
 
 parser = argparse.ArgumentParser(
     description="A utility to run the test suite for Template_Engine."
@@ -49,10 +49,10 @@ else:
 
 if all_integration_tests:
     print("INTEGRATION TESTS: ")
-    integration_tests.run_all_integration_tests()
+    tests.integration_tests.run_all_integration_tests()
 elif args.integration is not None:
     print("INTEGRATION TEST: " + args.integration)
-    integration_tests.run_integration_test(
+    tests.integration_tests.run_integration_test(
         Path(args.integration).resolve())
 
 if all_unit_tests:
@@ -60,4 +60,4 @@ if all_unit_tests:
     os.system("python3 -m unittest")
 elif args.unit is not None:
     print("UNIT TEST: " + args.unit)
-    os.system("python3 -m unittest test_src.test_" + args.unit)
+    os.system("python3 -m unittest tests.test_" + args.unit)

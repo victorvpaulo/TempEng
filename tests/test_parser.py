@@ -1,11 +1,6 @@
 import sys
 from pathlib import Path
 
-current_path = Path(__file__).resolve()
-test_path = current_path.parent.parent
-project_path = test_path.parent
-sys.path.append(str(test_path))
-sys.path.append(str(project_path))
 
 from unittest import TestCase
 

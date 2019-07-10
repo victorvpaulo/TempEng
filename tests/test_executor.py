@@ -1,25 +1,15 @@
-import sys
-from pathlib import Path
-
-current_path = Path(__file__).resolve()
-test_path = current_path.parent.parent
-project_path = test_path.parent
-sys.path.append(str(test_path))
-sys.path.append(str(project_path))
-
 import json
 from pathlib import Path
 from unittest import TestCase
 
 import src.executor as ex
-import test_src.config_reader
+from .config_reader import get_path_from_config
 
 
 class ExecutorUnitTest(TestCase):
 
     def setUp(self):
-        self.data_path = test_src.config_reader.get_path_from_config(
-            'execution_tests_data')
+        self.data_path = get_path_from_config('execution_tests_data')
 
     # def test_generate_file(self):
 

@@ -2,9 +2,9 @@ import argparse
 import sys
 from pathlib import Path
 
-from compiler import compile_template
-from executor import execute_compiled_template
-from utils import get_timestamp
+from src.compiler import compile_template
+from src.executor import execute_compiled_template
+from src.utils import get_timestamp
 
 
 def exit_on_arg_error(errormsg):
@@ -29,7 +29,6 @@ parser.add_argument("-co", "--compileoutput", type=str,
                          " If not provided, the output will be sent to"
                          " the same directory of the provided static template"
                          " file, under the name 'tmplt<timestamp>.py'")
-
 
 parser.add_argument("-e", "--execute", nargs="?", const="$compiled$",
                     metavar="<template file path>",

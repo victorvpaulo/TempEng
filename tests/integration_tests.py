@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from config_reader import get_path_from_config
+from .config_reader import get_path_from_config
 from src.compiler import compile_template
 from src.executor import execute_compiled_template
 

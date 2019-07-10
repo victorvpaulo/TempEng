@@ -1,10 +1,11 @@
 from configparser import ConfigParser
 from pathlib import Path
 
-ROOT = current_path = Path(__file__).parent.parent
+ROOT = current_path = Path(__file__).parent
+
 
 def build_config_parser():
-    config_file_path = Path(ROOT / "configurations.config").resolve()
+    config_file_path = Path(ROOT / "config/configurations.config").resolve()
     parser = ConfigParser()
     parser.read(config_file_path)
     return parser
