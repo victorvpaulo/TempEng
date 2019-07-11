@@ -26,7 +26,7 @@ def build_text_file(context, output_path):
         str_list.append(str_10)
         str_11 = product['price']
         str_list.append(str_11)
-        if product['price'] > context['maximum_price']:
+        if product['price'] > context['maximum_price'] and context['warn_on_maximum_price']:
             str_12 = ' <b> - ABOVE MAXIMUM PRICE</b>'
             str_list.append(str_12)
         str_13 = '</li>\n'

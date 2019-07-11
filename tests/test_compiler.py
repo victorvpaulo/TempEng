@@ -40,6 +40,22 @@ class CompilerUnitTest(unittest.TestCase):
                          "\n    if context['x'] < context['y']:")
         self.assertEqual(self.c.compile_if("if x <= y", 0),
                          "\n    if context['x'] <= context['y']:")
+        self.assertEqual(self.c.compile_if("if x is True", 0),
+                         "\n    if context['x'] is True:")
+        self.assertEqual(self.c.compile_if("if x is not True", 0),
+                         "\n    if context['x'] is not True:")
+        self.assertEqual(self.c.compile_if("if x", 0),
+                         "\n    if context['x']:")
+        self.assertEqual(self.c.compile_if("if x and y", 0),
+                         "\n    if context['x'] and context['y']:")
+        self.assertEqual(self.c.compile_if("if x or y", 0),
+                         "\n    if context['x'] or context['y']:")
+        self.assertEqual(self.c.compile_if("if x is y", 0),
+                         "\n    if context['x'] is context['y']:")
+        self.assertEqual(self.c.compile_if("if x is None", 0),
+                         "\n    if context['x'] is None:")
+        self.assertEqual(self.c.compile_if("if x is not None", 0),
+                         "\n    if context['x'] is not None:")
         self.c.add_variable_to_scope("z", 0)
         self.assertEqual(self.c.compile_if("if x == z", 1),
                          "\n        if context['x'] == z:")
@@ -51,44 +67,88 @@ class CompilerUnitTest(unittest.TestCase):
                          "\n        if context['x'] == True:")
         self.assertEqual(self.c.compile_if("if x == False", 1),
                          "\n        if context['x'] == False:")
+        self.assertEqual(self.c.compile_if("if x > 1 and x < 3", 1),
+                         "\n        if context['x'] > 1 and context['x'] < 3:")
+        self.assertEqual(self.c.compile_if("if x < 1 or x > 3", 1),
+                         "\n        if context['x'] < 1 or context['x'] > 3:")
+        self.assertEqual(
+            self.c.compile_if("if x < 1 or x > 3 and y is True", 1),
+            "\n        if context['x'] < 1 or context['x'] > 3 "
+            "and context['y'] is True:")
 
     def test_if_value_is_static_string(self):
-        self.assertEqual(self.c.if_value_is_static_string("'abc'"), True)
-        self.assertEqual(self.c.if_value_is_static_string("abc"), False)
-        self.assertEqual(self.c.if_value_is_static_string("'abc"), False)
-        self.assertEqual(self.c.if_value_is_static_string("abc'"), False)
-        self.assertEqual(self.c.if_value_is_static_string('"abc"'), True)
-        self.assertEqual(self.c.if_value_is_static_string('abc'), False)
-        self.assertEqual(self.c.if_value_is_static_string('"abc'), False)
-        self.assertEqual(self.c.if_value_is_static_string('abc"'), False)
+        self.assertEqual(self.c.is_static_string("'abc'"), True)
+        self.assertEqual(self.c.is_static_string("abc"), False)
+        self.assertEqual(self.c.is_static_string("'abc"), False)
+        self.assertEqual(self.c.is_static_string("abc'"), False)
+        self.assertEqual(self.c.is_static_string('"abc"'), True)
+        self.assertEqual(self.c.is_static_string('abc'), False)
+        self.assertEqual(self.c.is_static_string('"abc'), False)
+        self.assertEqual(self.c.is_static_string('abc"'), False)
 
     def test_if_value_is_numeric(self):
-        self.assertEqual(self.c.if_value_is_numeric("123"), True)
-        self.assertEqual(self.c.if_value_is_numeric("123.0"), True)
-        self.assertEqual(self.c.if_value_is_numeric("123."), True)
-        self.assertEqual(self.c.if_value_is_numeric("123.2.3"), False)
-        self.assertEqual(self.c.if_value_is_numeric("abc"), False)
-        self.assertEqual(self.c.if_value_is_numeric("True"), False)
-        self.assertEqual(self.c.if_value_is_numeric("False"), False)
+        self.assertEqual(self.c.is_numeric("123"), True)
+        self.assertEqual(self.c.is_numeric("123.0"), True)
+        self.assertEqual(self.c.is_numeric("123."), True)
+        self.assertEqual(self.c.is_numeric("123.2.3"), False)
+        self.assertEqual(self.c.is_numeric("abc"), False)
+        self.assertEqual(self.c.is_numeric("True"), False)
+        self.assertEqual(self.c.is_numeric("False"), False)
 
     def test_if_value_is_boolean(self):
-        self.assertEqual(self.c.if_value_is_boolean("True"), True)
-        self.assertEqual(self.c.if_value_is_boolean("False"), True)
-        self.assertEqual(self.c.if_value_is_boolean("123"), False)
-        self.assertEqual(self.c.if_value_is_boolean("x.y"), False)
+        self.assertEqual(self.c.is_boolean("True"), True)
+        self.assertEqual(self.c.is_boolean("False"), True)
+        self.assertEqual(self.c.is_boolean("123"), False)
+        self.assertEqual(self.c.is_boolean("x.y"), False)
 
-    def test_get_comparison_operator(self):
-        self.assertEqual(self.c.get_comparison_operator("if x > 10"), ">")
-        self.assertEqual(self.c.get_comparison_operator("if x >= 10"), ">=")
-        self.assertEqual(self.c.get_comparison_operator("if x < 10"), "<")
-        self.assertEqual(self.c.get_comparison_operator("if x <= 10"), "<=")
-        self.assertEqual(self.c.get_comparison_operator("if x == 10"), "==")
-        self.assertEqual(self.c.get_comparison_operator("if x != 10"), "!=")
-        self.assertEqual(self.c.get_comparison_operator("if x == True"), "==")
-        self.assertEqual(self.c.get_comparison_operator("if x is True"), None)
-        self.assertEqual(self.c.get_comparison_operator("if x != True"), "!=")
-        self.assertEqual(self.c.get_comparison_operator("if x is not True"),
-                         None)
+    def test_is_comparison_operator(self):
+        self.assertEqual(self.c.is_operator("=="), True)
+        self.assertEqual(self.c.is_operator("!="), True)
+        self.assertEqual(self.c.is_operator(">="), True)
+        self.assertEqual(self.c.is_operator(">"), True)
+        self.assertEqual(self.c.is_operator("<="), True)
+        self.assertEqual(self.c.is_operator("<"), True)
+        self.assertEqual(self.c.is_operator("or"), True)
+        self.assertEqual(self.c.is_operator("and"), True)
+        self.assertEqual(self.c.is_operator("is"), True)
+        self.assertEqual(self.c.is_operator("not"), True)
+        self.assertEqual(self.c.is_operator("abc"), False)
+
+    def test_element_of_if_expression_is_variable(self):
+        self.assertEqual(self.c.element_of_if_expression_is_variable("abc"),
+                         True)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("'abc'"),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable('"abc"'),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("True"),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("False"),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("None"),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("123"),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("=="),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("!="),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable(">="),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable(">"),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("<="),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("<"),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("or"),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("and"),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("is"),
+                         False)
+        self.assertEqual(self.c.element_of_if_expression_is_variable("not"),
+                         False)
 
     def test_compile_for(self):
         self.assertEqual(self.c.compile_for("for x in y", 0),

@@ -4,6 +4,7 @@
       "quantity": 5
     },
     "maximum_price": 10,
+    "warn_on_maximum_price": true,
     "product_list": [
       {
         "name": "soap",
@@ -33,6 +34,7 @@
       "quantity": 3
     },
     "maximum_price": 10,
+    "warn_on_maximum_price": true,
     "product_list": [
       {
         "name": "beans",

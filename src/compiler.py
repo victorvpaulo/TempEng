@@ -172,50 +172,48 @@ class Compiler:
 
     def compile_if(self, if_expression, indent_level):
         comparison_expression = if_expression.replace("if", "")
-        comparison_operator = self.get_comparison_operator(
-            comparison_expression)
-        values_to_be_compared = comparison_expression.split(
-            comparison_operator)
-        for index in range(0, len(values_to_be_compared)):
-            value = values_to_be_compared[index].strip()
-            if self.if_value_is_static_string(value) or \
-                    self.if_value_is_boolean(value) or \
-                    self.if_value_is_numeric(value):
-                values_to_be_compared[index] = value
-            else:
-                values_to_be_compared[index] = self.compile_variable(
-                    value, indent_level, True)
-        compiled_if_expression = "if " + values_to_be_compared[0] + " " \
-                                 + comparison_operator + " " + \
-                                 values_to_be_compared[1] \
-                                 + ":"
+        elements = comparison_expression.split()
+        for i in range(0, len(elements)):
+            elemenent = elements[i]
+            if self.element_of_if_expression_is_variable(elemenent):
+                elements[i] = self.compile_variable(elemenent, indent_level,
+                                                    True)
+        compiled_if = "if " + " ".join(elements).strip() + ":"
 
-        compiled_if_expression = self.indent(compiled_if_expression,
-                                             indent_level)
-        return compiled_if_expression
+        compiled_if = self.indent(compiled_if, indent_level)
+        return compiled_if
 
-    def if_value_is_static_string(self, if_value):
-        starting_character = if_value[0]
-        ending_character = if_value[-1]
+    def element_of_if_expression_is_variable(self, part):
+        if self.is_operator(part) \
+                or self.is_static_string(part) \
+                or self.is_boolean(part) \
+                or self.is_numeric(part) \
+                or part == "None":
+            return False
+        return True
+
+    def is_operator(self, value):
+        operators = (
+            "==", "!=", ">=", ">", "<=", "<", "or", "and", "is", "not")
+        if value in operators:
+            return True
+        return False
+
+    def is_static_string(self, value):
+        starting_character = value[0]
+        ending_character = value[-1]
         if (starting_character == '"' and ending_character == '"') or (
                 starting_character == "'" and ending_character == "'"):
             return True
         return False
 
-    def if_value_is_boolean(self, if_value):
-        if if_value == "True" or if_value == "False":
+    def is_boolean(self, value):
+        if value == "True" or value == "False":
             return True
         return False
 
-    def if_value_is_numeric(self, if_value):
-        return if_value.replace(".", "", 1).isdigit()
-
-    def get_comparison_operator(self, if_expression):
-        operators = ("==", "!=", ">=", ">", "<=", "<")
-        for operator in operators:
-            if operator in if_expression:
-                return operator
-        return None
+    def is_numeric(self, value):
+        return value.replace(".", "", 1).isdigit()
 
     def compile_for(self, for_expression, indent_level):
         element_of_sequence = self.get_element_of_sequence(for_expression)
