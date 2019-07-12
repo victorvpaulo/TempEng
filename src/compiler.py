@@ -171,14 +171,13 @@ class Compiler:
                                               indent_level)
 
     def compile_if(self, if_expression, indent_level):
-        comparison_expression = if_expression.replace("if", "")
-        elements = comparison_expression.split()
+        elements = if_expression.split()
         for i in range(0, len(elements)):
-            elemenent = elements[i]
-            if self.element_of_if_expression_is_variable(elemenent):
-                elements[i] = self.compile_variable(elemenent, indent_level,
+            element = elements[i]
+            if self.element_of_if_expression_is_variable(element):
+                elements[i] = self.compile_variable(element, indent_level,
                                                     True)
-        compiled_if = "if " + " ".join(elements).strip() + ":"
+        compiled_if = " ".join(elements) + ":"
 
         compiled_if = self.indent(compiled_if, indent_level)
         return compiled_if
@@ -188,7 +187,8 @@ class Compiler:
                 or self.is_static_string(part) \
                 or self.is_boolean(part) \
                 or self.is_numeric(part) \
-                or part == "None":
+                or part == "None" \
+                or part == "if":
             return False
         return True
 
