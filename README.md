@@ -106,4 +106,4 @@ This project is licensed under the terms of the **GNU General Public License v3.
 ## Acknowledgments
 **Ned Batchelder**, author of the chapter [A Template Engine](http://aosabook.org/en/500L/a-template-engine.html) from one of the books from the series **The Architecture of Open Source Applications**. By the time I was reading this book, I was grappling with a task that required creating a template engine, and I intended to build it based on interpretation. The first few paragraphs of this chapter convinced me that it would be more fun to write a program based on compilation.
 
-However, it may be worthwhile stressing that the source code of TempEng was developed independently of Batchelder's template engine code - the only thing that both share is the syntax supported by the templates, which in turn is based on Django.
+However, it may be worthwhile stressing that the source code of TempEng was **developed independently** of Batchelder's template engine code - the only thing that both share is the syntax supported by the templates, which in turn is based on Django.
