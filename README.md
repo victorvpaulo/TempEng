@@ -101,7 +101,7 @@ Contributions are very welcome. You can send feature requests or bug reports by 
 
 ## License
 
-This project is licensed under the terms of the **GNU General Public License v3.0**. For more details, see [LICENSE.md](LICENSE.md).
+This project is licensed under the terms of the **GNU General Public License v3.0**. For more details, see [LICENSE](LICENSE).
 
 ## Acknowledgments
 **Ned Batchelder**, author of the chapter [A Template Engine](http://aosabook.org/en/500L/a-template-engine.html) from one of the books from the series **The Architecture of Open Source Applications**. By the time I was reading this book, I was grappling with a task that required creating a template engine, and I intended to build it based on interpretation. The first few paragraphs of this chapter convinced me that it would be more fun to write a program based on compilation.

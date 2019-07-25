@@ -6,7 +6,7 @@ TempEng é um template engine simples desenvolvido em Python. Através dele é p
 
 ## Obtendo o programa
 
-Para começar a utilizar TemEng basta clonar este repositório em sua máquina local.
+Para começar a utilizar TempEng basta clonar este repositório em sua máquina local.
 TempEng não requer qualquer dependência externa, ter Python 3 instalado é o único requisito para executar o programa.
 
 
@@ -100,7 +100,7 @@ Sugestões, pedidos ou implementações de funcionalidades e relatórios de poss
 
 ## Licença
 
-Este projeto está licenciado sob a GNU General Public License v3.0. Para mais detalhes, veja [LICENSE.md](LICENSE.md).
+Este projeto está licenciado sob a GNU General Public License v3.0. Para mais detalhes, veja [LICENSE](LICENSE).
 
 ## Agradecimentos
 **Ned Batchelder**, autor do capítulo [A Template Engine](http://aosabook.org/en/500L/a-template-engine.html) em um dos livros da série **The Architecture of Open Source Applications**. Na época em que eu folheava este livro, eu estava às voltas com uma tarefa que exigia a criação de um template engine, e pretendia construí-lo baseado em interpretação. A leitura dos primeiros parágrafos deste capítulo me convenceram de que seria mais divertido desenvolver um programa baseado em compilação.
