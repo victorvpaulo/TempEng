@@ -17,9 +17,9 @@ A primeira etapa no uso do programa é a compilação de um template a partir de
 
 Abaixo temos o conteúdo do arquivo `static_template.html`:
 ```
-</p>Student: {{student.name}}</p>
-</p>Grade: {{student.grade}}</p>
-</p>Result: {%if student.grade >= 7 %}Approved{%endif%}{%if student.grade < 7 %}Reproved{%endif%}</p>
+<p>Student: {{student.name}}</p>
+<p>Grade: {{student.grade}}</p>
+<p>Result: {%if student.grade >= 7 %}Approved{%endif%}{%if student.grade < 7 %}Reproved{%endif%}</p>
 ```
 Para compilar este arquivo em um template nomeado `template.py` executamos:
 ```
@@ -52,15 +52,15 @@ Com isso, obtemos dois arquivos textuais com dados inseridos dinamicamente:
 
  `John.html`
 ```
-</p>Student: Jonh</p>
-</p>Grade: 6</p>
-</p>Result: Reproved</p>
+<p>Student: Jonh</p>
+<p>Grade: 6</p>
+<p>Result: Reproved</p>
 ```
 e `Mary.html`:
 ```
-</p>Student: Mary</p>
-</p>Grade: 8</p>
-</p>Result: Approved</p>
+<p>Student: Mary</p>
+<p>Grade: 8</p>
+<p>Result: Approved</p>
 ```
 
 Também é possível realizar esta tarefa em um único passo, operando a compilação e execução a partir de um só comando:

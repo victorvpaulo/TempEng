@@ -19,9 +19,9 @@ You can start by compiling a template from a textual file, as show in the exampl
 
 Here we have the content of the `static_template.html` file:
 ```
-</p>Student: {{student.name}}</p>
-</p>Grade: {{student.grade}}</p>
-</p>Result: {%if student.grade >= 7 %}Approved{%endif%}{%if student.grade < 7 %}Reproved{%endif%}</p>
+<p>Student: {{student.name}}</p>
+<p>Grade: {{student.grade}}</p>
+<p>Result: {%if student.grade >= 7 %}Approved{%endif%}{%if student.grade < 7 %}Reproved{%endif%}</p>
 ```
 To compile this file into a template named `template.py` we run the main module passing the following arguments:
 ```
@@ -54,15 +54,15 @@ This results in two textual files with embedded dynamic data:
 
  `John.html`
 ```
-</p>Student: Jonh</p>
-</p>Grade: 6</p>
-</p>Result: Reproved</p>
+<p>Student: Jonh</p>
+<p>Grade: 6</p>
+<p>Result: Reproved</p>
 ```
 and `Mary.html`:
 ```
-</p>Student: Mary</p>
-</p>Grade: 8</p>
-</p>Result: Approved</p>
+<p>Student: Mary</p>
+<p>Grade: 8</p>
+<p>Result: Approved</p>
 ```
 
 It's also possible to do this task in a single step by running compilation and execution using just one command:
